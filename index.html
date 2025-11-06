@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Calculadora de Notas — Fundamental e Médio</title>
-<meta name="description" content="Calculadora de médias com interface limpa. Fundamental e Médio. Média Anual, P2 mínima e Tri mínimo, com Exame Final no Médio.">
+<meta name="description" content="Calculadora de médias. Fundamental e Médio. Média Anual, P2 mínima e Tri mínimo, com Exame Final no Médio.">
 <style>
 :root{
   --bg:#070a17; --bg2:#090d1f;
@@ -27,6 +27,8 @@ body{
     linear-gradient(180deg, var(--bg), var(--bg2));
   overflow-x:hidden;
 }
+
+/* orbes + rede sutil */
 .orb{position:fixed; border-radius:50%; filter:blur(40px); opacity:.35; mix-blend-mode:screen; z-index:-2}
 .o1{width:560px;height:560px;background:radial-gradient(circle at 30% 30%,#6aa5ff,transparent 60%);top:-160px;left:-140px;animation:f1 16s ease-in-out infinite}
 .o2{width:620px;height:620px;background:radial-gradient(circle at 70% 40%,#7ef7d4,transparent 55%);bottom:-180px;right:-160px;animation:f2 19s ease-in-out infinite}
@@ -41,12 +43,15 @@ body{
   mask-image: radial-gradient(1000px 600px at 50% 30%, #000 40%, transparent 80%);
   z-index:-1; opacity:.22;
 }
+
 .wrap{max-width:1200px;margin:0 auto;padding:32px 16px 64px}
 header{text-align:center;margin-bottom:18px}
 .kicker{display:inline-flex;gap:8px;align-items:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:linear-gradient(180deg,var(--glass),transparent);backdrop-filter:blur(6px);color:var(--muted);font-size:12px}
 .logoDot{width:8px;height:8px;border-radius:50%;background:linear-gradient(90deg,var(--brand1),var(--brand3));box-shadow:0 0 14px rgba(106,165,255,.9)}
 .title{margin:10px 0 6px;font-weight:900;font-size:clamp(24px,3.4vw,34px);letter-spacing:.2px}
 .sub{margin:0;color:var(--muted);font-size:14px}
+
+/* tabs */
 .tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
 .tab{
   background:linear-gradient(180deg,#0d1333,#0a102b);
@@ -56,8 +61,10 @@ header{text-align:center;margin-bottom:18px}
 }
 .tab:hover{transform:translateY(-1px)}
 .tab.active{background:linear-gradient(90deg,var(--brand1),var(--brand3));color:#fff;box-shadow:0 0 22px rgba(106,165,255,.35)}
+
 .layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
 @media (max-width: 980px){.layout{grid-template-columns:1fr}}
+
 .card{
   background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)), var(--card);
   border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)
@@ -65,6 +72,8 @@ header{text-align:center;margin-bottom:18px}
 .card .hd{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
 .card .hd h2{margin:0;font-size:16px}
 .card .bd{padding:18px}
+
+/* chips */
 .actions{display:flex;gap:10px;flex-wrap:wrap}
 .chip{
   position:relative; isolation:isolate;
@@ -80,6 +89,8 @@ header{text-align:center;margin-bottom:18px}
 .chip:hover{transform:translateY(-1px);border-color:#3c65ff}
 .chip:hover::after{opacity:1}
 .chip.active{border-color:#3c65ff;box-shadow:0 0 0 3px rgba(60,101,255,.22) inset}
+
+/* inputs */
 label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px 4px}
 .inputs{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:12px;margin-top:14px}
 @media (max-width:700px){.inputs{grid-template-columns:1fr}}
@@ -95,6 +106,8 @@ input{
 input::placeholder{color:#6e76a5}
 .hint{font-size:12px;color:var(--muted2);margin-top:10px}
 .sep{height:1px;background:linear-gradient(90deg,transparent,#2b356b,transparent);margin:16px 0}
+
+/* botões */
 .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
 .btn{
   position:relative;isolation:isolate;
@@ -110,41 +123,76 @@ input::placeholder{color:#6e76a5}
 }
 .btn .glow{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;background:conic-gradient(from 0deg,rgba(106,165,255,.30),rgba(126,247,212,.30),rgba(179,136,255,.30),rgba(106,165,255,.30));filter:blur(18px);opacity:0;transition:.25s}
 .btn:hover .glow{opacity:.8}
+
+/* outputs */
 .outs{display:grid;gap:12px}
 .kpi{
   display:flex;align-items:center;gap:16px;background:linear-gradient(180deg,var(--glass),transparent);
   border:1px solid var(--line);border-radius:14px;padding:14px
 }
 .gauge{display:flex;align-items:center;gap:16px}
-.ring{width:140px;height:140px;position:relative}
-.ring circle{fill:none;stroke-width:12;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%}
-.ring .bg{stroke:#1e2647}
-.ring .fg{stroke:url(#grad1);stroke-dasharray:439.822;stroke-dashoffset:439.822;transition:stroke-dashoffset .6s ease}
+/* anel com folga para não cortar */
+.ringWrap{width:160px;height:160px;position:relative}
+.ringWrap svg{display:block;width:160px;height:160px}
+.ringWrap circle{fill:none;stroke-width:12;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%}
+.ringWrap .bg{stroke:#1e2647}
+.ringWrap .fg{stroke:url(#grad1);stroke-dasharray:427.26;stroke-dashoffset:427.26;transition:stroke-dashoffset .6s ease}
 .ginfo{display:flex;flex-direction:column;gap:4px}
 .gmain{font-size:30px;font-weight:900;letter-spacing:.3px}
-.gsub{font-size:12px;color:var(--muted2)}
+.gsub{font-size:12px;color:#9fb0ea}
 .status{font-size:13px;color:var(--muted2)}
 .centerMA{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .centerMA .big{font-size:24px;font-weight:900}
 .centerMA .sub{font-size:11px;color:var(--muted2);margin-top:2px;text-align:center}
+
 .pill{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   background:linear-gradient(180deg,var(--glass),transparent);
   border:1px solid var(--line);padding:14px;border-radius:14px;font-variant-numeric:tabular-nums
 }
-.tag{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tag{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:#9fb0ea}
 .ok{color:var(--ok);border-color:#1b6a52;background:linear-gradient(180deg,rgba(13,214,140,.12),rgba(13,214,140,0))}
 .bad{color:var(--bad);border-color:#6a1f28;background:linear-gradient(180deg,rgba(255,107,115,.12),rgba(255,107,115,0))}
 .mid{color:var(--warn);border-color:#6a4e1f;background:linear-gradient(180deg,rgba(255,196,88,.12),rgba(255,196,88,0))}
+
 .tableCard{background:linear-gradient(180deg,var(--glass),transparent);border:1px solid var(--line);border-radius:12px}
 .tableCard table{width:100%;border-collapse:collapse}
 .tableCard th,.tableCard td{padding:10px 12px;border-bottom:1px dashed #2b356b;text-align:left}
 .tableCard th{color:#c9d6ff}
 .tableCard tr:last-child td{border-bottom:0}
+
 .toast{position:fixed;right:16px;bottom:16px;background:linear-gradient(180deg,#0f173d,#0b1234);color:#eaf0ff;border:1px solid #2a3567;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);pointer-events:none;transition:.3s}
 .toast.show{opacity:1;transform:none}
+
+/* assinatura */
 .signature{position:fixed;right:14px;bottom:12px;font-size:12px;color:var(--muted);background:linear-gradient(180deg,#0b1130,#0a0f28);border:1px solid #223064;border-radius:999px;padding:6px 10px;opacity:.8}
 .signature:hover{opacity:1}
+
+/* ===== Widget de Versão ===== */
+.version{
+  position:fixed;left:14px;bottom:12px;z-index:10;
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px;border-radius:999px;
+  background:linear-gradient(180deg,#0b1130,#0a0f28);
+  border:1px solid #223064;color:#9fb0ea;font-size:12px;opacity:.9
+}
+.version .dot{width:8px;height:8px;border-radius:999px;background:linear-gradient(90deg,var(--brand1),var(--brand3));box-shadow:0 0 14px rgba(106,165,255,.9)}
+.version .tag{border-color:#2b356b;color:#dfe6ff}
+.version:hover{opacity:1}
+.version .carat{opacity:.7}
+.version-panel{
+  position:fixed;left:14px;bottom:48px;min-width:240px;
+  background:linear-gradient(180deg,#0e1430,#0a102b);
+  border:1px solid #223064;border-radius:14px;color:#dfe6ff;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);padding:10px;display:none
+}
+.version-panel h4{margin:4px 6px 8px;font-size:12px;color:#9fb0ea;font-weight:700}
+.version-panel ul{list-style:none;margin:0;padding:0}
+.version-panel li{padding:8px 10px;border:1px solid #223064;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent);margin:6px 0}
+.version-panel .vhead{display:flex;justify-content:space-between;color:#9fb0ea;font-size:12px;margin-bottom:4px}
+.version-panel .vbody{font-size:12px;color:#c7d2ff}
+.version.open + .version-panel{display:block}
+
 .visually-hidden{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
 </style>
 </head>
@@ -155,7 +203,7 @@ input::placeholder{color:#6e76a5}
   <header>
     <span class="kicker"><span class="logoDot"></span> Calculadora de Notas</span>
     <h1 class="title">Ensino Fundamental & Ensino Médio</h1>
-    <p class="sub">Cálculo limpo e direto. Sem fórmulas na tela.</p>
+    <p class="sub">Colégio Weber Dehon</p>
     <div class="tabs" role="tablist" aria-label="Modos">
       <button id="tabFund" class="tab active" role="tab" aria-selected="true" aria-controls="panelFund" onclick="setTab('fund')">Ensino Fundamental</button>
       <button id="tabMed"  class="tab" role="tab" aria-selected="false" aria-controls="panelMed"  onclick="setTab('med')">Ensino Médio</button>
@@ -168,26 +216,10 @@ input::placeholder{color:#6e76a5}
       <div class="hd"><h2 id="inTitle">Entradas</h2></div>
       <div class="bd">
         <div class="actions" id="actions"></div>
-
-        <div class="inputs" style="margin-top:10px">
-          <div>
-            <label for="goalMA">Meta de MA</label>
-            <div class="inputWrap"><svg class="inputIcon" width="18" height="18" viewBox="0 0 24 24"><path fill="#8aa1ff" d="M12 3l9 4.5v9L12 21 3 16.5v-9z"/></svg><input id="goalMA" inputmode="decimal" value="7,00" placeholder="7,0"></div>
-          </div>
-          <div id="goalTxBlock">
-            <label for="goalTx">Meta de Tx</label>
-            <div class="inputWrap"><svg class="inputIcon" width="18" height="18" viewBox="0 0 24 24"><path fill="#86f7d9" d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg><input id="goalTx" inputmode="decimal" value="7,00" placeholder="7,0"></div>
-          </div>
-        </div>
-
         <div class="sep"></div>
-
         <div id="inputsArea" class="inputs"></div>
-
         <p class="hint">Notas entre 0 e 10.</p>
-
         <div class="sep"></div>
-
         <div class="btns">
           <button class="btn primary" id="btnCalc"><span class="glow"></span>Calcular</button>
           <button class="btn ghost" id="btnLimpar"><span class="glow"></span>Limpar</button>
@@ -202,8 +234,8 @@ input::placeholder{color:#6e76a5}
       <div class="bd outs">
         <div class="kpi">
           <div class="gauge">
-            <div class="ring">
-              <svg class="ring" viewBox="0 0 140 140" aria-hidden="true">
+            <div class="ringWrap">
+              <svg viewBox="0 0 160 160" aria-hidden="true">
                 <defs>
                   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stop-color="#6aa5ff"/>
@@ -211,13 +243,13 @@ input::placeholder{color:#6e76a5}
                     <stop offset="100%" stop-color="#b388ff"/>
                   </linearGradient>
                 </defs>
-                <circle class="bg" cx="70" cy="70" r="70"></circle>
-                <circle class="fg" id="fg" cx="70" cy="70" r="70"></circle>
+                <circle class="bg" cx="80" cy="80" r="68"></circle>
+                <circle class="fg" id="fg" cx="80" cy="80" r="68"></circle>
               </svg>
               <div class="centerMA">
                 <div style="display:flex;flex-direction:column;align-items:center">
                   <div class="big" id="maCenter">—</div>
-                  <div class="sub">Média Anual</div>
+                  <div class="sub" id="maLegend">Média Anual</div>
                 </div>
               </div>
             </div>
@@ -230,6 +262,7 @@ input::placeholder{color:#6e76a5}
         </div>
 
         <div class="pill"><div>Resultado principal</div><div class="tag" id="mainTag">—</div></div>
+        <div class="pill" id="t3calcRow" style="display:none"><div>T3</div><div class="tag" id="t3calcTag">—</div></div>
         <div class="pill"><div>Exame Final</div><div class="tag" id="efTag">—</div></div>
 
         <div class="tableCard">
@@ -248,32 +281,46 @@ input::placeholder{color:#6e76a5}
 <div id="toast" class="toast" role="status" aria-live="polite">Ok</div>
 <div class="signature">Site feito por: @luizgmrzzx</div>
 
+<!-- Widget de Versão -->
+<button id="versionBtn" class="version" aria-expanded="false" aria-controls="versionPanel" title="Versões do site">
+  <span class="dot"></span>
+  <span>Versão</span>
+  <span id="versionTag" class="tag">—</span>
+  <svg class="carat" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path fill="#9fb0ea" d="M7 10l5 5 5-5z"/></svg>
+</button>
+<div id="versionPanel" class="version-panel" role="dialog" aria-label="Histórico de versões">
+  <h4>Histórico</h4>
+  <ul id="versionList"></ul>
+</div>
+
 <script>
 /* ===== Util ===== */
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const fmt=n=>Number.isFinite(n)?n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
-const CIRC=439.822;
-function setGauge(ratio){$('#fg').style.strokeDashoffset=(CIRC*(1-Math.max(0,Math.min(1,ratio)))).toFixed(2)}
+const R=68, CIRC=2*Math.PI*R;
+function setGauge(ratio){
+  const r=Math.max(0,Math.min(1,ratio));
+  $('#fg').style.strokeDashoffset=(CIRC*(1-r)).toFixed(2);
+}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
 function toNum(s){if(typeof s!=='string')return NaN;const t=s.trim().replace(/\s+/g,'').replace(',','.');const n=Number(t);return Number.isFinite(n)?n:NaN}
 function read(id){return toNum($('#'+id)?.value??'')}
 function setTag(id,val,kind){const el=$(id);el.textContent=val;el.className='tag'+(kind?' '+kind:'')}
 function setTable(rows){$('#tbl').innerHTML=rows.map(([k,v,o])=>`<tr><td>${k}</td><td>${v}</td><td>${o||''}</td></tr>`).join('')}
 
-/* ===== Fórmulas internas (não exibidas) ===== */
+/* ===== Regras ===== */
+const META=7;
+
 /* Médio */
 const MA_medio=(T1,T2,T3)=>(2*T1+2*T2+3*T3)/7;
+const T3_medio=(P1,P2,S)=>(P1+P2+2*S)/2;
 function EF_minimo(MA){ return (50 - 7*MA)/3 }
-function P2min_medio(T1,T2,P1,S,goalMA){const T3need=(7*goalMA-2*T1-2*T2)/3;return 2*T3need-P1-2*S}
+function P2min_medio(T1,T2,P1,S,goalMA){const T3need=(7*goalMA-2*T1-2*T2)/3;return {T3need, P2min: 2*T3need-P1-2*S}}
+
 /* Fundamental */
 const TX_fund=(P1,P2,Tri,S)=>(P1+P2+Tri+3*S)/3;
 const MA_fund=(T1,T2,Tx)=>(1*T1+1*T2+1.5*Tx)/3;
-// Tri mínimo para atingir MA alvo no Fundamental:
-function TRIMIN_fund_MA(T1,T2,P1,P2,S,goalMA){
-  // deduzido de MA = (T1 + T2 + 1.5*TX)/3, com TX = (P1+P2+Tri+3S)/3
-  // Tri >= 6*goalMA - 2*T1 - 2*T2 - P1 - P2 - 3*S
-  return 6*goalMA - 2*T1 - 2*T2 - P1 - P2 - 3*S;
-}
+function TRIMIN_fund_MA(T1,T2,P1,P2,S){return 6*META - 2*T1 - 2*T2 - P1 - P2 - 3*S}
 
 /* ===== Estado ===== */
 let TAB='fund';         // 'fund' | 'med'
@@ -294,14 +341,11 @@ function renderActions(){
     box.innerHTML=`
       <button type="button" class="chip" data-act="fund_full">Média Anual</button>
       <button type="button" class="chip" data-act="fund_tri_min">Tri mínimo</button>`;
-    // ambas metas disponíveis; Tri mínimo usa MA alvo
-    $('#goalTxBlock').style.display='';
   }else{
     ACTION=ACTION.startsWith('med_')?ACTION:'med_full';
     box.innerHTML=`
       <button type="button" class="chip" data-act="med_full">Média Anual</button>
       <button type="button" class="chip" data-act="med_p2_min">P2 mínima</button>`;
-    $('#goalTxBlock').style.display='none';
   }
   [...box.querySelectorAll('.chip')].forEach(btn=>{
     btn.classList.toggle('active',btn.dataset.act===ACTION);
@@ -337,7 +381,6 @@ function renderInputs(){
         field('tri','Tri (trimestral)','ex.: 4,0','#b388ff')+
         field('s','S (simulado)','ex.: 0,7','#ffd479');
     }else{
-      // Tri mínimo baseado em MA alvo → precisa T1, T2, P1, P2, S e MA alvo
       a.innerHTML=
         field('t1','T1','ex.: 7,0')+
         field('t2','T2','ex.: 8,0')+
@@ -352,31 +395,34 @@ function renderInputs(){
         field('t2','T2','ex.: 7,8')+
         field('t3','T3','ex.: 7,0','#86f7d9');
     }else{
+      /* Médio → P2 mínima: P1 e P2 sem (T3) e sem "— opcional" */
       a.innerHTML=
         field('t1','T1','ex.: 6,5')+
         field('t2','T2','ex.: 7,8')+
-        field('p1','P1 (3º tri)','ex.: 5,5','#86f7d9')+
-        field('s','S (simulado)','ex.: 0,7','#ffd479')+
-        field('goalMA','MA alvo','7,00','#b388ff');
+        field('p1','P1','ex.: 5,5','#86f7d9')+
+        field('p2','P2','ex.: 6,8','#86f7d9')+
+        field('s','S (simulado)','ex.: 0,7','#ffd479');
     }
   }
 }
 
-/* ===== Lógica de cálculo ===== */
+/* ===== Lógica ===== */
 function clearOutputs(){
   $('#maVal').textContent='MA —';
   $('#maCenter').textContent='—';
+  $('#maLegend').textContent='Média Anual';
   $('#gsub').textContent='Meta: 7,00';
   $('#status').textContent='Status: —';
   setTag('#mainTag','—');
   setTag('#efTag','—');
+  $('#t3calcRow').style.display='none';
+  setTag('#t3calcTag','—');
   setGauge(0); setTable([]);
 }
 
 $('#btnCalc').addEventListener('click', ()=>{
   const T1=read('t1'), T2=read('t2'), T3=read('t3');
   const P1=read('p1'), P2=read('p2'), S=read('s'), TRI=read('tri');
-  const goalMA=toNum($('#goalMA').value), goalTx=toNum($('#goalTx')?.value??'');
 
   function need(vals){
     if(vals.some(v=>!Number.isFinite(v))){toast('Preencha os campos necessários');return false}
@@ -388,70 +434,64 @@ $('#btnCalc').addEventListener('click', ()=>{
     if(!need([T1,T2,T3]))return;
     const MA=MA_medio(T1,T2,T3);
     const EF=EF_minimo(MA);
-    showResults('Médio',MA,goalMA,[
-      ['T1',fmt(T1),'1º trimestre'],
-      ['T2',fmt(T2),'2º trimestre'],
-      ['T3',fmt(T3),'3º trimestre'],
-      ['MA',fmt(MA),'Média anual']
-    ], EF);
+    showResults('Médio',MA,[['MA',fmt(MA),'Média anual']], EF);
   }
   else if(TAB==='med' && ACTION==='med_p2_min'){
-    if(!need([T1,T2,P1,S,goalMA]))return;
-    const p2min=P2min_medio(T1,T2,P1,S,goalMA);
-    showResults('Médio',NaN,goalMA,[
-      ['T1',fmt(T1),'1º trimestre'],
-      ['T2',fmt(T2),'2º trimestre'],
-      ['P1',fmt(P1),'3º trimestre'],
-      ['S', fmt(S),'Simulado'],
-      ['MA alvo',fmt(goalMA),'Meta']
-    ], null, p2min);
+    if(!need([T1,T2,P1,S]))return;
+    const {T3need, P2min}=P2min_medio(T1,T2,P1,S,META);
+
+    let rows=[
+      ['T3 necessário',fmt(T3need),'para atingir MA 7,0'],
+      ['P2 mínima',fmt(P2min), P2min>10?'>10 impossível':(P2min<=0?'já aprovado com P1 e S':'alcançar')]
+    ];
+    let MAshow = NaN;
+    let EFshow = 0;
+    $('#t3calcRow').style.display='none';
+    $('#maLegend').textContent='Média Anual';
+
+    if(Number.isFinite(P2)){
+      const T3cur=T3_medio(P1,P2,S);
+      const MAcur=MA_medio(T1,T2,T3cur);
+      MAshow = MAcur;
+      EFshow = EF_minimo(MAcur);
+      setTag('#t3calcTag',fmt(T3cur),''); 
+      $('#t3calcRow').style.display='';
+      rows.push(['T3',fmt(T3cur),'de P1, P2 e S']);
+    }
+
+    showResults('Médio',MAshow,rows,EFshow,null,P2min);
   }
   else if(TAB==='fund' && ACTION==='fund_full'){
     if(!need([T1,T2,P1,P2,TRI,S]))return;
     const TX=TX_fund(P1,P2,TRI,S);
     const MA=MA_fund(T1,T2,TX);
-    showResults('Fundamental',MA,goalMA,[
-      ['T1',fmt(T1),'1º trimestre'],
-      ['T2',fmt(T2),'2º trimestre'],
-      ['P1',fmt(P1),'3º trimestre'],
-      ['P2',fmt(P2),'3º trimestre'],
-      ['Tri (trimestral)',fmt(TRI),'Trabalho'],
-      ['S', fmt(S),'Simulado'],
-      ['Média do 3º',fmt(TX),'Calculada']
-    ]);
+    showResults('Fundamental',MA,[['Média do 3º',fmt(TX),'Calculada']]);
   }
   else if(TAB==='fund' && ACTION==='fund_tri_min'){
-    if(!need([T1,T2,P1,P2,S,goalMA]))return;
-    const triMin=TRIMIN_fund_MA(T1,T2,P1,P2,S,goalMA);
-    showResults('Fundamental',NaN,goalMA,[
-      ['T1',fmt(T1),'1º trimestre'],
-      ['T2',fmt(T2),'2º trimestre'],
-      ['P1',fmt(P1),'3º trimestre'],
-      ['P2',fmt(P2),'3º trimestre'],
-      ['S', fmt(S),'Simulado'],
-      ['MA alvo',fmt(goalMA),'Meta']
-    ], null, null, triMin);
+    if(!need([T1,T2,P1,P2,S]))return;
+    const triMin=TRIMIN_fund_MA(T1,T2,P1,P2,S);
+    // Resultado principal: P2 mínima (mantém o mesmo valor calculado)
+    showResults('Fundamental',NaN,[['Tri mínimo (cálculo base)',fmt(triMin),'para MA 7,0']], null, null, triMin);
   }
 });
 
-function showResults(modo,MA,goal,rows,EF=null,P2min=null,TriMin=null){
-  const g=Number.isFinite(goal)?goal:7;
+function showResults(modo,MA,rows,EF=null,P2min=null,TriMin=null){
   const maTxt=Number.isFinite(MA)?fmt(MA):'—';
   $('#maVal').textContent=`MA ${maTxt}`;
   $('#maCenter').textContent=maTxt;
-  $('#gsub').textContent=`Meta: ${fmt(g)}`;
-  const ok=Number.isFinite(MA)?(MA>=g):null;
+  $('#gsub').textContent=`Meta: 7,00`;
+  const ok=Number.isFinite(MA)?(MA>=META):null;
   $('#status').textContent=Number.isFinite(MA)?(ok?'Status: aprovado':'Status: abaixo da meta'):'Status: —';
   const defMain=Number.isFinite(MA)?(ok?`MA ${fmt(MA)} ✔`:`MA ${fmt(MA)} ✖`):'—';
   setTag('#mainTag',defMain, ok==null?'':(ok?'ok':'bad'));
 
-  if(modo==='Médio' && EF!==null){
-    let label=`${fmt(EF)}`;
+  if(modo==='Médio'){
+    if(EF===null || !Number.isFinite(EF)) EF = 0;
     let kind='mid';
-    if(Number.isFinite(MA) && MA>=7){ label='0,00'; kind='ok'; }
-    else if(EF<=0){ label='0,00'; kind='ok'; }
+    if(Number.isFinite(MA) && MA>=7) { EF=0; kind='ok'; }
+    else if(EF<=0){ EF=0; kind='ok'; }
     else if(EF>10){ kind='bad'; }
-    setTag('#efTag',label,kind);
+    setTag('#efTag',fmt(EF),kind);
   }else{
     setTag('#efTag','—');
   }
@@ -463,38 +503,63 @@ function showResults(modo,MA,goal,rows,EF=null,P2min=null,TriMin=null){
 
   if(TriMin!==null){
     const kind = TriMin>10?'bad':(TriMin<=0?'ok':'mid');
-    setTag('#mainTag', TriMin>10?`Tri mínimo ${fmt(TriMin)} (impossível)`:(TriMin<=0?`Tri mínimo 0,00`:`Tri mínimo ${fmt(TriMin)}`), kind);
+    setTag('#mainTag', TriMin>10?`P2 mínima ${fmt(TriMin)} (impossível)`:(TriMin<=0?`P2 mínima 0,00`:`P2 mínima ${fmt(TriMin)}`), kind);
   }
 
-  setGauge(Number.isFinite(MA)?Math.min(1,Math.max(0,MA/g)):0);
+  setGauge(Number.isFinite(MA)?Math.min(1,Math.max(0,MA/META)):0);
   setTable(rows);
 }
 
 /* limpar e exemplo */
 $('#btnLimpar').addEventListener('click',()=>{
   $$('#inputsArea input').forEach(i=>i.value='');
-  $('#goalMA').value='7,00'; if($('#goalTx')){$('#goalTx').value='7,00'}
   clearOutputs(); toast('Campos limpos')
 });
 $('#btnExemplo').addEventListener('click',()=>{
   if(TAB==='med'){
     if(ACTION==='med_full'){
-      $('#t1').value='6,50';$('#t2').value='7,80';$('#t3').value='7,00';$('#goalMA').value='7,00';
+      $('#t1').value='6,50';$('#t2').value='7,80';$('#t3').value='7,00';
     }else{
-      $('#t1').value='6,80';$('#t2').value='7,20';$('#p1').value='6,40';$('#s').value='0,80';$('#goalMA').value='7,00';
+      $('#t1').value='6,80';$('#t2').value='7,20';$('#p1').value='6,40';$('#p2').value='6,80';$('#s').value='0,80';
     }
   }else{
     if(ACTION==='fund_full'){
-      $('#t1').value='7,00';$('#t2').value='8,00';$('#p1').value='6,50';$('#p2').value='7,20';$('#tri').value='4,00';$('#s').value='0,70';$('#goalMA').value='7,00';$('#goalTx').value='7,00';
+      $('#t1').value='7,00';$('#t2').value='8,00';$('#p1').value='6,50';$('#p2').value='7,20';$('#tri').value='4,00';$('#s').value='0,70';
     }else{
-      $('#t1').value='7,20';$('#t2').value='7,80';$('#p1').value='6,50';$('#p2').value='7,10';$('#s').value='0,70';$('#goalMA').value='7,00';
+      $('#t1').value='7,20';$('#t2').value='7,80';$('#p1').value='6,50';$('#p2').value='7,10';$('#s').value='0,70';
     }
   }
   toast('Exemplo preenchido');
 });
 
-/* inicialização */
-function init(){ setTab('fund'); }
+/* ===== Versões ===== */
+const CURRENT_VERSION = "1.0";
+const VERSIONS = [
+  { v:"1.0", date:"2025-11-05", notes:"Primeiro release público. Tema escuro neon, cálculo de MA, P2 mínima, Tri mínimo e Exame Final." },
+  // { v:"1.1", date:"2025-11-12", notes:"Exemplo: melhorias de responsividade e correções visuais no anel." },
+  // { v:"1.2", date:"2025-11-20", notes:"Exemplo: novo modo de importação de notas." },
+];
+
+function mountVersions(){
+  $('#versionTag').textContent = CURRENT_VERSION;
+  const ul = $('#versionList');
+  ul.innerHTML = VERSIONS.map(it=>`
+    <li>
+      <div class="vhead"><span>v${it.v}</span><span>${it.date}</span></div>
+      <div class="vbody">${it.notes}</div>
+    </li>`).join('');
+  const btn = $('#versionBtn');
+  const panel = $('#versionPanel');
+  function toggle(open){
+    btn.classList.toggle('open',open);
+    btn.setAttribute('aria-expanded', String(open));
+    panel.style.display = open ? 'block' : 'none';
+  }
+  btn.addEventListener('click', (e)=>{ e.stopPropagation(); toggle(btn.getAttribute('aria-expanded')==='false'); });
+  document.addEventListener('click', ()=> toggle(false));
+}
+
+function init(){ setTab('fund'); mountVersions(); }
 init();
 </script>
 </body>
