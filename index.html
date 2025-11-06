@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Calculadora de Notas — Fundamental e Médio</title>
-<meta name="description" content="Calculadora de médias. Fundamental e Médio. Média Anual, P2 mínima e Tri mínimo, com Exame Final no Médio.">
+<meta name="description" content="Calculadora de médias. Fundamental e Médio. Média Anual, P2 mínima e Tri mínimo. No Fundamental não há Exame Final.">
 <style>
 :root{
   --bg:#070a17; --bg2:#090d1f;
@@ -65,6 +65,7 @@ header{text-align:center;margin-bottom:18px}
 .layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
 @media (max-width: 980px){.layout{grid-template-columns:1fr}}
 
+/* cards */
 .card{
   background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)), var(--card);
   border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)
@@ -72,6 +73,7 @@ header{text-align:center;margin-bottom:18px}
 .card .hd{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
 .card .hd h2{margin:0;font-size:16px}
 .card .bd{padding:18px}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:6px 0 14px}
 
 /* chips */
 .actions{display:flex;gap:10px;flex-wrap:wrap}
@@ -131,7 +133,7 @@ input::placeholder{color:#6e76a5}
   border:1px solid var(--line);border-radius:14px;padding:14px
 }
 .gauge{display:flex;align-items:center;gap:16px}
-/* anel com folga para não cortar */
+/* anel */
 .ringWrap{width:160px;height:160px;position:relative}
 .ringWrap svg{display:block;width:160px;height:160px}
 .ringWrap circle{fill:none;stroke-width:12;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%}
@@ -140,10 +142,10 @@ input::placeholder{color:#6e76a5}
 .ginfo{display:flex;flex-direction:column;gap:4px}
 .gmain{font-size:30px;font-weight:900;letter-spacing:.3px}
 .gsub{font-size:12px;color:#9fb0ea}
-.status{font-size:13px;color:var(--muted2)}
+.status{font-size:13px;color:#var(--muted2)}
 .centerMA{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .centerMA .big{font-size:24px;font-weight:900}
-.centerMA .sub{font-size:11px;color:var(--muted2);margin-top:2px;text-align:center}
+.centerMA .sub{font-size:11px;color:#9fb0ea;margin-top:2px;text-align:center}
 
 .pill{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -168,7 +170,7 @@ input::placeholder{color:#6e76a5}
 .signature{position:fixed;right:14px;bottom:12px;font-size:12px;color:var(--muted);background:linear-gradient(180deg,#0b1130,#0a0f28);border:1px solid #223064;border-radius:999px;padding:6px 10px;opacity:.8}
 .signature:hover{opacity:1}
 
-/* ===== Widget de Versão ===== */
+/* Widget de versão */
 .version{
   position:fixed;left:14px;bottom:12px;z-index:10;
   display:flex;align-items:center;gap:8px;
@@ -263,7 +265,7 @@ input::placeholder{color:#6e76a5}
 
         <div class="pill"><div>Resultado principal</div><div class="tag" id="mainTag">—</div></div>
         <div class="pill" id="t3calcRow" style="display:none"><div>T3</div><div class="tag" id="t3calcTag">—</div></div>
-        <div class="pill"><div>Exame Final</div><div class="tag" id="efTag">—</div></div>
+        <div class="pill" id="efRow"><div>Exame Final</div><div class="tag" id="efTag">—</div></div>
 
         <div class="tableCard">
           <table>
@@ -308,18 +310,19 @@ function read(id){return toNum($('#'+id)?.value??'')}
 function setTag(id,val,kind){const el=$(id);el.textContent=val;el.className='tag'+(kind?' '+kind:'')}
 function setTable(rows){$('#tbl').innerHTML=rows.map(([k,v,o])=>`<tr><td>${k}</td><td>${v}</td><td>${o||''}</td></tr>`).join('')}
 
-/* ===== Regras ===== */
+/* ===== Parâmetros ===== */
 const META=7;
 
-/* Médio */
+/* Médio (mantido) */
 const MA_medio=(T1,T2,T3)=>(2*T1+2*T2+3*T3)/7;
 const T3_medio=(P1,P2,S)=>(P1+P2+2*S)/2;
 function EF_minimo(MA){ return (50 - 7*MA)/3 }
 function P2min_medio(T1,T2,P1,S,goalMA){const T3need=(7*goalMA-2*T1-2*T2)/3;return {T3need, P2min: 2*T3need-P1-2*S}}
 
-/* Fundamental */
+/* Fundamental (atualizado) */
 const TX_fund=(P1,P2,Tri,S)=>(P1+P2+Tri+3*S)/3;
 const MA_fund=(T1,T2,Tx)=>(1*T1+1*T2+1.5*Tx)/3;
+/* Tri mínima para atingir MA=7,0 no modelo completo (usa P1,P2,S e resolve Tri) */
 function TRIMIN_fund_MA(T1,T2,P1,P2,S){return 6*META - 2*T1 - 2*T2 - P1 - P2 - 3*S}
 
 /* ===== Estado ===== */
@@ -331,7 +334,7 @@ function setTab(t){
   TAB=t;
   $('#tabFund').classList.toggle('active',t==='fund');
   $('#tabMed').classList.toggle('active',t==='med');
-  renderActions(); renderInputs(); clearOutputs();
+  renderActions(); renderInputs(); clearOutputs(); toggleEFRow();
 }
 
 function renderActions(){
@@ -353,7 +356,7 @@ function renderActions(){
       ACTION=btn.dataset.act;
       [...box.querySelectorAll('.chip')].forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
-      clearOutputs(); renderInputs();
+      clearOutputs(); renderInputs(); toggleEFRow();
     });
   });
 }
@@ -380,7 +383,7 @@ function renderInputs(){
         field('p2','P2','ex.: 7,2','#86f7d9')+
         field('tri','Tri (trimestral)','ex.: 4,0','#b388ff')+
         field('s','S (simulado)','ex.: 0,7','#ffd479');
-    }else{
+    }else{ // fund_tri_min -> entradas P1, P2 e S
       a.innerHTML=
         field('t1','T1','ex.: 7,0')+
         field('t2','T2','ex.: 8,0')+
@@ -395,15 +398,20 @@ function renderInputs(){
         field('t2','T2','ex.: 7,8')+
         field('t3','T3','ex.: 7,0','#86f7d9');
     }else{
-      /* Médio → P2 mínima: P1 e P2 sem (T3) e sem "— opcional" */
       a.innerHTML=
-        field('t1','T1','ex.: 6,5')+
-        field('t2','T2','ex.: 7,8')+
-        field('p1','P1','ex.: 5,5','#86f7d9')+
+        field('t1','T1','ex.: 6,8')+
+        field('t2','T2','ex.: 7,2')+
+        field('p1','P1','ex.: 6,4','#86f7d9')+
         field('p2','P2','ex.: 6,8','#86f7d9')+
-        field('s','S (simulado)','ex.: 0,7','#ffd479');
+        field('s','S (simulado)','ex.: 0,8','#ffd479');
     }
   }
+}
+
+function toggleEFRow(){
+  // No Fundamental: esconder Exame Final. No Médio: mostrar.
+  const showEF = (TAB==='med');
+  $('#efRow').style.display = showEF ? '' : 'none';
 }
 
 /* ===== Lógica ===== */
@@ -430,13 +438,17 @@ $('#btnCalc').addEventListener('click', ()=>{
     return true;
   }
 
+  // MÉDIO — média anual
   if(TAB==='med' && ACTION==='med_full'){
     if(!need([T1,T2,T3]))return;
     const MA=MA_medio(T1,T2,T3);
     const EF=EF_minimo(MA);
-    showResults('Médio',MA,[['MA',fmt(MA),'Média anual']], EF);
+    showResultsMedio(MA, EF, [['MA',fmt(MA),'Média anual']]);
+    return;
   }
-  else if(TAB==='med' && ACTION==='med_p2_min'){
+
+  // MÉDIO — P2 mínima
+  if(TAB==='med' && ACTION==='med_p2_min'){
     if(!need([T1,T2,P1,S]))return;
     const {T3need, P2min}=P2min_medio(T1,T2,P1,S,META);
 
@@ -444,8 +456,8 @@ $('#btnCalc').addEventListener('click', ()=>{
       ['T3 necessário',fmt(T3need),'para atingir MA 7,0'],
       ['P2 mínima',fmt(P2min), P2min>10?'>10 impossível':(P2min<=0?'já aprovado com P1 e S':'alcançar')]
     ];
-    let MAshow = NaN;
-    let EFshow = 0;
+
+    let MAshow = NaN, EFshow = 0;
     $('#t3calcRow').style.display='none';
     $('#maLegend').textContent='Média Anual';
 
@@ -454,60 +466,98 @@ $('#btnCalc').addEventListener('click', ()=>{
       const MAcur=MA_medio(T1,T2,T3cur);
       MAshow = MAcur;
       EFshow = EF_minimo(MAcur);
-      setTag('#t3calcTag',fmt(T3cur),''); 
+      setTag('#t3calcTag',fmt(T3cur),'');
       $('#t3calcRow').style.display='';
       rows.push(['T3',fmt(T3cur),'de P1, P2 e S']);
     }
 
-    showResults('Médio',MAshow,rows,EFshow,null,P2min);
+    showResultsMedio(MAshow, EFshow, rows, P2min);
+    return;
   }
-  else if(TAB==='fund' && ACTION==='fund_full'){
+
+  // FUNDAMENTAL — média anual (sem Exame Final)
+  if(TAB==='fund' && ACTION==='fund_full'){
     if(!need([T1,T2,P1,P2,TRI,S]))return;
     const TX=TX_fund(P1,P2,TRI,S);
     const MA=MA_fund(T1,T2,TX);
-    showResults('Fundamental',MA,[['Média do 3º',fmt(TX),'Calculada']]);
+    showResultsFundamental({
+      mainLabel:`MA ${fmt(MA)}`,
+      mainKind:(MA>=META?'ok':'bad'),
+      maValue:MA,
+      maLegend:'Média Anual',
+      status:MA>=META?'aprovado':'abaixo da meta',
+      table:[['Média do 3º',fmt(TX),'Calculada']],
+      triMin:null
+    });
+    return;
   }
-  else if(TAB==='fund' && ACTION==='fund_tri_min'){
+
+  // FUNDAMENTAL — Tri mínimo com P1, P2 e S; exibir MA como "Média Anual"
+  if(TAB==='fund' && ACTION==='fund_tri_min'){
     if(!need([T1,T2,P1,P2,S]))return;
-    const triMin=TRIMIN_fund_MA(T1,T2,P1,P2,S);
-    // Resultado principal: P2 mínima (mantém o mesmo valor calculado)
-    showResults('Fundamental',NaN,[['Tri mínimo (cálculo base)',fmt(triMin),'para MA 7,0']], null, null, triMin);
+    const T3min = Math.max(0, Math.min(10, TRIMIN_fund_MA(T1,T2,P1,P2,S)));
+    const TX = TX_fund(P1,P2,T3min,S);
+    const MAprev = MA_fund(T1,T2,TX);
+    showResultsFundamental({
+      mainLabel:`Tri mínima ${fmt(T3min)}`,
+      mainKind: (T3min>10?'bad':(T3min<=0?'ok':'mid')),
+      maValue:MAprev,
+      maLegend:'Média Anual',
+      status: MAprev>=META ? 'aprovado' : 'abaixo da meta',
+      table:[['T3 mínima necessária', fmt(T3min), 'Nota mínima no 3º trimestre para atingir a meta']],
+      triMin:T3min
+    });
+    return;
   }
 });
 
-function showResults(modo,MA,rows,EF=null,P2min=null,TriMin=null){
+/* ===== Saídas ===== */
+function showResultsMedio(MA, EF, rows, P2min=null){
   const maTxt=Number.isFinite(MA)?fmt(MA):'—';
   $('#maVal').textContent=`MA ${maTxt}`;
   $('#maCenter').textContent=maTxt;
+  $('#maLegend').textContent='Média Anual';
   $('#gsub').textContent=`Meta: 7,00`;
+
   const ok=Number.isFinite(MA)?(MA>=META):null;
   $('#status').textContent=Number.isFinite(MA)?(ok?'Status: aprovado':'Status: abaixo da meta'):'Status: —';
-  const defMain=Number.isFinite(MA)?(ok?`MA ${fmt(MA)} ✔`:`MA ${fmt(MA)} ✖`):'—';
-  setTag('#mainTag',defMain, ok==null?'':(ok?'ok':'bad'));
 
-  if(modo==='Médio'){
-    if(EF===null || !Number.isFinite(EF)) EF = 0;
-    let kind='mid';
-    if(Number.isFinite(MA) && MA>=7) { EF=0; kind='ok'; }
-    else if(EF<=0){ EF=0; kind='ok'; }
-    else if(EF>10){ kind='bad'; }
-    setTag('#efTag',fmt(EF),kind);
-  }else{
-    setTag('#efTag','—');
-  }
+  let mainLabel = Number.isFinite(MA) ? (ok?`MA ${fmt(MA)} ✔`:`MA ${fmt(MA)} ✖`) : '—';
+  let mainKind = ok==null?'':(ok?'ok':'bad');
 
   if(P2min!==null){
-    const kind = P2min>10?'bad':(P2min<=0?'ok':'mid');
-    setTag('#mainTag', P2min>10?`P2 mínima ${fmt(P2min)} (impossível)`:(P2min<=0?`P2 mínima 0,00`:`P2 mínima ${fmt(P2min)}`), kind);
+    mainLabel = P2min>10?`P2 mínima ${fmt(P2min)} (impossível)`:(P2min<=0?`P2 mínima 0,00`:`P2 mínima ${fmt(P2min)}`);
+    mainKind = P2min>10?'bad':(P2min<=0?'ok':'mid');
   }
+  setTag('#mainTag', mainLabel, mainKind);
 
-  if(TriMin!==null){
-    const kind = TriMin>10?'bad':(TriMin<=0?'ok':'mid');
-    setTag('#mainTag', TriMin>10?`P2 mínima ${fmt(TriMin)} (impossível)`:(TriMin<=0?`P2 mínima 0,00`:`P2 mínima ${fmt(TriMin)}`), kind);
-  }
+  if(!Number.isFinite(EF)) EF = 0;
+  let efKind='mid';
+  if(Number.isFinite(MA) && MA>=7) { EF=0; efKind='ok'; }
+  else if(EF<=0){ EF=0; efKind='ok'; }
+  else if(EF>10){ efKind='bad'; }
+  setTag('#efTag', fmt(EF), efKind);
 
   setGauge(Number.isFinite(MA)?Math.min(1,Math.max(0,MA/META)):0);
   setTable(rows);
+  $('#t3calcRow').style.display='none';
+}
+
+function showResultsFundamental({mainLabel, mainKind, maValue, maLegend, status, table}){
+  setTag('#mainTag', mainLabel, mainKind);
+  setTag('#efTag','—');
+  $('#efRow').style.display='none';
+
+  const maTxt=Number.isFinite(maValue)?fmt(maValue):'—';
+  $('#maVal').textContent=`MA ${maTxt}`;
+  $('#maCenter').textContent=maTxt;
+  $('#maLegend').textContent=maLegend || 'Média Anual';
+  $('#gsub').textContent=`Meta: 7,00`;
+  $('#status').textContent=Number.isFinite(maValue)?(`Status: ${status}`):'Status: —';
+
+  setGauge(Number.isFinite(maValue)?Math.min(1,Math.max(0,maValue/META)):0);
+  setTable(table || []);
+  $('#t3calcRow').style.display='none';
 }
 
 /* limpar e exemplo */
@@ -533,11 +583,11 @@ $('#btnExemplo').addEventListener('click',()=>{
 });
 
 /* ===== Versões ===== */
-const CURRENT_VERSION = "1.0";
+const CURRENT_VERSION = "1.2";
 const VERSIONS = [
-  { v:"1.0", date:"2025-11-05", notes:"Primeiro release público. Tema escuro neon, cálculo de MA, P2 mínima, Tri mínimo e Exame Final." },
-  // { v:"1.1", date:"2025-11-12", notes:"Exemplo: melhorias de responsividade e correções visuais no anel." },
-  // { v:"1.2", date:"2025-11-20", notes:"Exemplo: novo modo de importação de notas." },
+  { v:"1.2", date:"2025-11-05", notes:"Fundamental (Tri mínimo): entradas P1, P2 e S; rótulo exibindo MA como 'Média Anual'." },
+  { v:"1.1", date:"2025-11-05", notes:"Fundamental: removido Exame Final; Tri mínimo com cálculo e status; tabela só com T3." },
+  { v:"1.0", date:"2025-11-05", notes:"Release inicial com Fundamental e Médio. P2 mínima e EF no Médio." },
 ];
 
 function mountVersions(){
