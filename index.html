@@ -142,7 +142,7 @@ input::placeholder{color:#6e76a5}
 .ginfo{display:flex;flex-direction:column;gap:4px}
 .gmain{font-size:30px;font-weight:900;letter-spacing:.3px}
 .gsub{font-size:12px;color:#9fb0ea}
-.status{font-size:13px;color:#var(--muted2)}
+.status{font-size:13px;color:var(--muted2)}
 .centerMA{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .centerMA .big{font-size:24px;font-weight:900}
 .centerMA .sub{font-size:11px;color:#9fb0ea;margin-top:2px;text-align:center}
@@ -486,26 +486,25 @@ $('#btnCalc').addEventListener('click', ()=>{
       maValue:MA,
       maLegend:'Média Anual',
       status:MA>=META?'aprovado':'abaixo da meta',
-      table:[['Média do 3º',fmt(TX),'Calculada']],
-      triMin:null
+      table:[['Média do 3º',fmt(TX),'Calculada']]
     });
     return;
   }
 
-  // FUNDAMENTAL — Tri mínimo com P1, P2 e S; exibir MA como "Média Anual"
+  // FUNDAMENTAL — Tri mínimo com P1, P2 e S; exibir MA como "Média Anual" e tabela apenas com T3
   if(TAB==='fund' && ACTION==='fund_tri_min'){
     if(!need([T1,T2,P1,P2,S]))return;
-    const T3min = Math.max(0, Math.min(10, TRIMIN_fund_MA(T1,T2,P1,P2,S)));
-    const TX = TX_fund(P1,P2,T3min,S);
+    const T3min = TRIMIN_fund_MA(T1,T2,P1,P2,S);
+    const boundedT3 = Math.max(0, Math.min(10, T3min));
+    const TX = TX_fund(P1,P2,boundedT3,S);
     const MAprev = MA_fund(T1,T2,TX);
     showResultsFundamental({
-      mainLabel:`Tri mínima ${fmt(T3min)}`,
+      mainLabel:`Tri mínima ${fmt(boundedT3)}`,
       mainKind: (T3min>10?'bad':(T3min<=0?'ok':'mid')),
       maValue:MAprev,
       maLegend:'Média Anual',
       status: MAprev>=META ? 'aprovado' : 'abaixo da meta',
-      table:[['T3 mínima necessária', fmt(T3min), 'Nota mínima no 3º trimestre para atingir a meta']],
-      triMin:T3min
+      table:[['T3 mínima necessária', fmt(boundedT3), 'Nota mínima no 3º trimestre para atingir a meta']]
     });
     return;
   }
@@ -583,10 +582,11 @@ $('#btnExemplo').addEventListener('click',()=>{
 });
 
 /* ===== Versões ===== */
-const CURRENT_VERSION = "1.2";
+const CURRENT_VERSION = "1.3";
 const VERSIONS = [
-  { v:"1.2", date:"2025-11-05", notes:"Fundamental (Tri mínimo): entradas P1, P2 e S; rótulo exibindo MA como 'Média Anual'." },
-  { v:"1.1", date:"2025-11-05", notes:"Fundamental: removido Exame Final; Tri mínimo com cálculo e status; tabela só com T3." },
+  { v:"1.3", date:"2025-11-05", notes:"Portão por senha integrado; aperfeiçoos de acessibilidade e correções menores." },
+  { v:"1.2", date:"2025-11-05", notes:"Fundamental (Tri mínimo): entradas P1, P2 e S; MA exibida como 'Média Anual'." },
+  { v:"1.1", date:"2025-11-05", notes:"Fundamental: removido Exame Final; Tri mínimo com status; tabela só com T3." },
   { v:"1.0", date:"2025-11-05", notes:"Release inicial com Fundamental e Médio. P2 mínima e EF no Médio." },
 ];
 
@@ -612,5 +612,138 @@ function mountVersions(){
 function init(){ setTab('fund'); mountVersions(); }
 init();
 </script>
+
+<!-- ====== PORTÃO POR SENHA (SITE LOCK) ====== -->
+<style>
+  #gateLayer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(4,6,16,.92);backdrop-filter:blur(6px);z-index:2147483647}
+  #gateCard{width:min(420px,92vw);border:1px solid #223064;border-radius:18px;padding:18px;background:linear-gradient(180deg,#0e1430,#0a102b);color:#eaf0ff;box-shadow:0 18px 50px rgba(0,0,0,.55)}
+  #gateCard h3{margin:6px 0 2px;font-size:18px}
+  #gateCard p{margin:0 0 10px;color:#9fb0ea;font-size:12px}
+  #gateCard .row{display:grid;gap:10px;margin:10px 0}
+  #gateCard input{width:100%;padding:12px;border-radius:12px;border:1px solid #2b356b;background:#0c1434;color:#eaf0ff;outline:0}
+  #gateCard .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  #gateCard button{border:1px solid #2a3567;background:linear-gradient(180deg,#1a2352,#121a45);color:#eaf0ff;padding:10px 12px;border-radius:12px;font-weight:800;cursor:pointer}
+  #gateCard .ghost{background:transparent}
+  #gateErr{color:#ff6a6f;font-size:12px;min-height:16px}
+  #btnGateLogout{position:fixed;top:14px;right:14px;border:1px solid #2a3567;background:linear-gradient(180deg,#1a2352,#121a45);color:#eaf0ff;padding:8px 12px;border-radius:12px;font-weight:800;cursor:pointer;z-index:2147483646;display:none}
+  body._gateLocked{overflow:hidden}
+</style>
+
+<button id="btnGateLogout" type="button" title="Sair">Sair</button>
+
+<div id="gateLayer" aria-modal="true" role="dialog" aria-labelledby="gateTitle" aria-describedby="gateDesc">
+  <div id="gateCard">
+    <h3 id="gateTitle">Digite a senha de acesso</h3>
+    <p id="gateDesc">Somente usuários autorizados.</p>
+    <div class="row">
+      <input id="gateToken" type="password" inputmode="text" placeholder="Senha / token" autocomplete="current-password" aria-label="Senha de acesso">
+      <div id="gateErr" role="status" aria-live="polite"></div>
+      <div class="btns">
+        <button id="gateEnter" type="button">Entrar</button>
+        <button id="gateShow" class="ghost" type="button" aria-pressed="false" aria-controls="gateToken">Mostrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALLOWED_TOKENS = ['calcwebdeh'];  // senha(s) válida(s)
+const ALLOWED_HASHES = [];              // opcional: hashes SHA-256 em hex
+const STORAGE_KEY = 'wd_site_token_ok_v1';
+const COOLDOWN_MS = 30000;
+const MAX_TENTATIVAS = 10;
+
+const $$g = s => document.querySelector(s);
+const gState = { tentativas: 0, until: 0 };
+function gNow(){ return Date.now(); }
+function gSetErr(msg){ const el=$$g('#gateErr'); if(el) el.textContent = msg || ''; }
+
+function gShowApp(show){
+  const wrap = document.querySelector('.wrap');
+  if (wrap) wrap.style.filter = show ? 'none' : 'blur(0px)';
+  $$g('#gateLayer').style.display = show ? 'none' : 'flex';
+  $$g('#btnGateLogout').style.display = show ? 'inline-flex' : 'none';
+  document.body.classList.toggle('_gateLocked', !show);
+}
+
+async function gIsValidToken(tok){
+  if(!tok) return false;
+  if (ALLOWED_TOKENS.length && ALLOWED_TOKENS.includes(tok)) return true;
+  if (ALLOWED_HASHES.length && window.crypto?.subtle){
+    const enc = new TextEncoder().encode(tok);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    const hex = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    if (ALLOWED_HASHES.includes(hex)) return true;
+  }
+  return false;
+}
+
+async function gUnlockIfValid(tok){
+  if (gState.until && gNow() < gState.until){
+    const secs = Math.ceil((gState.until - gNow())/1000);
+    gSetErr(`Aguarde ${secs}s para tentar novamente.`);
+    return false;
+  }
+  const ok = await gIsValidToken(tok);
+  if (ok){
+    try{ localStorage.setItem(STORAGE_KEY, '1'); }catch(e){}
+    gSetErr('');
+    gState.tentativas = 0;
+    gShowApp(true);
+    return true;
+  } else {
+    gState.tentativas++;
+    if (gState.tentativas >= MAX_TENTATIVAS){
+      gState.until = gNow() + COOLDOWN_MS;
+      gSetErr('Muitas tentativas. Tente em 30s.');
+    } else {
+      gSetErr('Senha inválida.');
+    }
+    return false;
+  }
+}
+
+$$g('#gateEnter').addEventListener('click', async ()=>{
+  const tok = $$g('#gateToken').value.trim();
+  await gUnlockIfValid(tok);
+});
+$$g('#gateToken').addEventListener('keydown', async e=>{
+  if(e.key === 'Enter'){
+    const tok = e.target.value.trim();
+    await gUnlockIfValid(tok);
+  }
+});
+$$g('#gateShow').addEventListener('click', ()=>{
+  const i = $$g('#gateToken');
+  const showing = i.type === 'text';
+  i.type = showing ? 'password' : 'text';
+  const btn = $$g('#gateShow');
+  btn.textContent = showing ? 'Mostrar' : 'Ocultar';
+  btn.setAttribute('aria-pressed', String(!showing));
+});
+$$g('#btnGateLogout').addEventListener('click', ()=>{
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  const input = $$g('#gateToken');
+  if (input) input.value = '';
+  gShowApp(false);
+  gSetErr('');
+  input?.focus();
+});
+document.addEventListener('keydown', e=>{
+  if (e.key === 'Escape' && $$g('#gateLayer').style.display !== 'none'){
+    const input = $$g('#gateToken');
+    if (input?.type === 'text') $$g('#gateShow').click();
+    input?.focus();
+  }
+});
+(function gInit(){
+  try{
+    if (localStorage.getItem(STORAGE_KEY) === '1'){ gShowApp(true); return; }
+  }catch(e){}
+  gShowApp(false);
+  setTimeout(()=>{ $$g('#gateToken')?.focus(); }, 0);
+})();
+</script>
+<!-- ====== /PORTÃO POR SENHA ====== -->
 </body>
 </html>
